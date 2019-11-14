@@ -9,32 +9,38 @@ function MyForm() {
       id: "",
       name: "",
       email: "",
-      password: ""
+      password: "",
+      role: ""
     }
   ]);
 
-  const handleSubmit = (values, tools) => {
+  const handleSubmit = (values, { setErrors, resetForm, setSubmitting }) => {
     if (users.some(user => user.email === values.email)) {
-      tools.setErrors({ email: "That email is already taken" });
+      setErrors({ email: "That email is already taken" });
     } else {
-      console.log(users);
       axios
         .post("https://reqres.in/api/users", values)
         .then(res => {
           setUsers([...users, createNewUser(res.data)]);
-          tools.resetForm();
+          //   debugger;
+          resetForm();
         })
         .catch(err => {
           console.log(err);
+        })
+        .finally(() => {
+          setSubmitting(false);
         });
     }
   };
+
   const createNewUser = res => {
     const newUser = {
       id: res.id,
       name: res.name,
       email: res.email,
-      password: res.password
+      password: res.password,
+      role: res.role
     };
     return newUser;
   };
@@ -53,7 +59,8 @@ function MyForm() {
       "is-true",
       "Must agree to terms of service",
       value => value === true
-    )
+    ),
+    role: Yup.string().required("Please select a role")
   });
   return (
     <>
@@ -62,12 +69,13 @@ function MyForm() {
           name: "",
           email: "",
           password: "",
+          role: "",
           tos: false
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ values, errors, touched }) => (
+        {({ values, errors, touched, isSubmitting }) => (
           <Form>
             <div>
               <Field type="text" name="name" placeholder="Name" />
@@ -86,14 +94,28 @@ function MyForm() {
               )}
             </div>
 
+            <div>
+              <Field as="select" name="role">
+                <option value="" disabled>
+                  Please choose a role
+                </option>
+                <option value="frontend">Frontend</option>
+                <option value="backend">Backend</option>
+                <option value="lost">Lost</option>
+              </Field>
+              {touched.role && errors.role && <ErrorMessage name="role" />}
+            </div>
+
             <label>
               <Field type="checkbox" name="tos" checked={values.tos} />
               Accept TOS
-              {errors.password && <ErrorMessage name="tos" />}
+              {errors.tos && <ErrorMessage name="tos" />}
             </label>
 
             <div>
-              <button type="submit">Submit!</button>
+              <button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Submitting" : "Submit"}
+              </button>
             </div>
           </Form>
         )}
@@ -102,6 +124,7 @@ function MyForm() {
         <ul key={user.id}>
           <h2>{user.name}</h2>
           <p>{user.email}</p>
+          <p>{user.role}</p>
         </ul>
       ))}
     </>
