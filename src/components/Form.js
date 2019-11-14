@@ -14,17 +14,19 @@ function MyForm() {
   ]);
 
   const handleSubmit = (values, tools) => {
-    axios
-      .post("https://reqres.in/api/users", values)
-      .then(res => {
-        setUsers([...users, createNewUser(res.data)]);
-        // console.log(res);
-        tools.resetForm();
-      })
-      .catch(err => {
-        console.log(err);
-      })
-      .finally(console.log(users));
+    if (values.email === "waffle@syrup.com") {
+      tools.setErrors({ email: "That email is already taken" });
+    } else {
+      axios
+        .post("https://reqres.in/api/users", values)
+        .then(res => {
+          setUsers([...users, createNewUser(res.data)]);
+          tools.resetForm();
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    }
   };
   const createNewUser = res => {
     const newUser = {
@@ -33,7 +35,6 @@ function MyForm() {
       email: res.email,
       password: res.password
     };
-    // console.log(newUser);
     return newUser;
   };
 
