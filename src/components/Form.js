@@ -14,9 +14,10 @@ function MyForm() {
   ]);
 
   const handleSubmit = (values, tools) => {
-    if (values.email === "waffle@syrup.com") {
+    if (users.some(user => user.email === values.email)) {
       tools.setErrors({ email: "That email is already taken" });
     } else {
+      console.log(users);
       axios
         .post("https://reqres.in/api/users", values)
         .then(res => {
