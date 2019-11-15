@@ -4,18 +4,10 @@ import * as Yup from "yup";
 import axios from "axios";
 
 function MyForm() {
-  const [users, setUsers] = useState([
-    {
-      id: "",
-      name: "",
-      email: "",
-      password: "",
-      role: ""
-    }
-  ]);
+  const [users, setUsers] = useState("");
 
   const handleSubmit = (values, { setErrors, resetForm, setSubmitting }) => {
-    if (users.some(user => user.email === values.email)) {
+    if (users && users.some(user => user.email === values.email)) {
       setErrors({ email: "That email is already taken" });
     } else {
       axios
@@ -120,13 +112,14 @@ function MyForm() {
           </Form>
         )}
       </Formik>
-      {users.map(user => (
-        <ul key={user.id}>
-          <h2>{user.name}</h2>
-          <p>{user.email}</p>
-          <p>{user.role}</p>
-        </ul>
-      ))}
+      {users &&
+        users.map(user => (
+          <ul key={user.id}>
+            <h2>{user.name}</h2>
+            <p>{user.email}</p>
+            <p>{user.role}</p>
+          </ul>
+        ))}
     </>
   );
 }
